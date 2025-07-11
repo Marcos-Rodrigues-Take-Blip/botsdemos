@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Análise de Marcas por Setor</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2 {
+      text-align: center;
+      color: #1E90FF;
+    }
+    p {
+      line-height: 1.6;
+      margin: 10px 0;
+      font-size: 18px;
+    }
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+    table {
+      width: 100%;
+      min-width: 1100px;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 18px;
+    }
+    th, td {
+      padding: 16px;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #1E90FF;
+      color: white;
+      font-size: 20px;
+    }
+    td {
+      font-size: 16px;
+    }
+
+th:nth-child(4) {
+  background-color: #1E90FF !important;
+  color: white;
+}
+    .chart-container {
+      margin: 30px 0;
+      width: 100%;
+      max-width: 900px;
+      height: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+      .chart-container {
+        max-width: 100%;
+        height: 400px;
+      }
+      table {
+        font-size: 14px;
+      }
+      th, td {
+        padding: 10px;
+      }
+      p {
+        font-size: 16px;
+      }
+    }
+
+    .info-btn {
+      background-color: #1E90FF;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+
+    .info-btn:hover {
+      background-color: #104E8B;
+    }
+
+    th:nth-child(4), td:nth-child(4) {
+      background-color: #f9f9f9;
+      text-align: center;
+    }
+
+    .popup {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.6);
+    }
+
+    .popup-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    .popup-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .fechar {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Análise de Marcas por Setor</h1>
+
+    <!-- ✅ Popup funcional (único no HTML!) -->
+    <div id="popup" class="popup">
+      <div class="popup-content">
+        <span class="fechar" onclick="fecharPopup()">×</span>
+        <img id="popup-imagem" src="" alt="Imagem do Popup" class="popup-imagem">
+      </div>
+    </div>
+
+    <p>
+      Esta análise apresenta a distribuição de marcas por setor com base na lista fornecida. O setor mais representado é o <strong>Financeiro/Fintech</strong>, com 19 marcas, seguido por <strong>Varejo</strong> (14 marcas) e <strong>Tecnologia</strong> (13 marcas). A tabela e os gráficos abaixo são gerados com base nos dados fixos no código, que podem ser editados no array <code>dadosMarcas</code> no JavaScript.
+    </p>
+
+    <h2>Tabela de Setores</h2>
+    <div class="table-container">
+      <table id="tabelaSetores">
+        <thead>
+          <tr>
+            <th>Setor</th>
+            <th>Quantidade de Marcas</th>
+            <th>Exemplos</th>
+            <th>Responsáveis</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <h2>Gráficos</h2>
+    <div class="chart-container">
+      <canvas id="barChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <canvas id="pieChart"></canvas>
+    </div>
+
+    <h2>Observações</h2>
+    <ul>
+      <li><strong>Financeiro domina</strong>: O setor financeiro lidera com 19 marcas, refletindo a digitalização no Brasil.</li>
+      <li><strong>Tecnologia e Varejo em alta</strong>: Esses setores mostram crescimento, impulsionados por inovação e demanda por consumo.</li>
+      <li><strong>Diversidade</strong>: A lista abrange setores tradicionais (indústria, energia) e novos players (fintechs, e-commerce).</li>
+      <li><strong>Como editar</strong>: Modifique o array <code>dadosMarcas</code> no código JavaScript para adicionar ou remover marcas.</li>
+    </ul>
+  </div>
+
+  <script>
+    const dadosMarcas = [
+      { setor: "Financeiro/Fintech", marcas: ["BTG Pactual", "Inter", "Banco BV", "Nubank", "Serasa", "Bettr", "PicPay", "Asaas", "Mercado Pago", "Dock", "Techfin", "Sicoob Nacional", "Okto Bank", "MetLife", "Sancor Seguros", "Icatu Seguros", "Porto Seguro", "Bradesco", "Cartão DM"] },
+      { setor: "Tecnologia", marcas: ["Airbnb", "PDTec (Grupo B3)", "Idea Maker", "Conecto Sistemas", "Stilingue", "Totvs", "Akad", "Twila", "Prospero Jus", "UOL", "Samsung", "HPE / MIT", "Insider"] },
+      { setor: "Saúde", marcas: ["Unimed", "Wellhub", "VIDI", "Saúde Petrobras", "Instituto Hermes Pardini", "Clamed Farmácias", "Academia Engenharia do Corpo", "Kenvue Inc", "Unimed Costa do Sol", "3778", "EspaçoLaser"] },
+      { setor: "Varejo", marcas: ["Grupo SBF (Centauro)", "Allu", "Silcar Pneus", "Gimba", "OLX", "Lojas Renner", "Casas Bahia", "Shein", "Bemol", "HQEletro", "Itapuã Calçados", "Akki", "Grupo Casas Bahia (Via)", "Mosaico"] },
+      { setor: "Educação", marcas: ["Akad", "Apoio (Grupo Multi)", "UniFECAF", "Vitru", "+A Educação", "Soc. Educ. Sto Antônio", "Board Academy", "YDUQS", "PUC Minas", "Afya"] },
+      { setor: "Energia", marcas: ["Sol Fácil", "Energisa", "Naturgy", "Saipem", "Ipiranga", "Vibra Energia", "EDP Brasil", "Copa Energia", "Raízen", "Coprel Energia", "Neoenergia"] },
+      { setor: "Indústria", marcas: ["Royal Canin", "General Motors", "Univar Solutions", "Mondelez (Mdlz)", "Sadia", "Karsten", "Masterboi"] },
+      { setor: "Imobiliário/Construção", marcas: ["Direcional", "Cyrela", "QuintoAndar", "TagHaus"] },
+      { setor: "Alimentação", marcas: ["Mondelez (Mdlz)", "Sadia", "iFood", "Masterboi", "AB InBev / Bess Care"] },
+      { setor: "Logística/Transporte", marcas: ["VCTeX", "FreteBras", "CCR"] },
+      { setor: "Entretenimento", marcas: ["EstrelaBet", "Netflix", "Brasil Paralelo"] },
+      { setor: "Agronegócio", marcas: ["Milagro Agro Brasil", "Masterboi"] },
+      { setor: "Telecomunicações", marcas: ["Cabonnet"] },
+      { setor: "Gráfica/Impressão", marcas: ["Compacta Print"] },
+      { setor: "Leilão", marcas: ["Superbid Exchange"] },
+      { setor: "Empreendedorismo", marcas: ["Endeavor"] }
+    ];
+
+    let barChart, pieChart;
+
+    function atualizarTabela() {
+      const tbody = document.querySelector("#tabelaSetores tbody");
+      tbody.innerHTML = "";
+
+      dadosMarcas.forEach((dado) => {
+        let imagem = "";
+       if (dado.setor === "Financeiro/Fintech") {
+            imagem = "./finance.jpg"; 
+        } else if (dado.setor === "Saúde") {
+            imagem = "./ratail.jpg"; 
+        } else if (dado.setor === "Varejo") {
+            imagem = "Health.jpg"; 
+        }
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${dado.setor}</td>
+          <td>${dado.marcas.length}</td>
+          <td>${dado.marcas.join(", ")}</td>
+          ${imagem ? `<td><button class="info-btn" data-imagem="${imagem}" onclick="abrirPopup(this)">Equipe</button></td>` : "<td></td>"}
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function atualizarGraficos() {
+      const setores = dadosMarcas.map(d => d.setor);
+      const quantidades = dadosMarcas.map(d => d.marcas.length);
+      const cores = [
+        '#1E90FF', '#32CD32', '#FF4500', '#FFD700', '#9932CC',
+        '#00CED1', '#FF69B4', '#228B22', '#DC143C', '#4682B4',
+        '#FFA500', '#6A5ACD', '#20B2AA', '#8B008B', '#00FF7F',
+        '#FF6347', '#40E0D0', '#EE82EE', '#9ACD32'
+      ];
+
+      if (barChart) barChart.destroy();
+      barChart = new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+          labels: setores,
+          datasets: [{
+            label: 'Número de Marcas',
+            data: quantidades,
+            backgroundColor: cores,
+            borderColor: '#FFFFFF',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: 'Distribuição de Marcas por Setor',
+              font: { size: 20 }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Número de Marcas',
+                font: { size: 18 }
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Setor',
+                font: { size: 18 }
+              }
+            }
+          }
+        }
+      });
+
+      const topN = 16;
+      const sortedSetores = [...dadosMarcas].sort((a, b) => b.marcas.length - a.marcas.length);
+      const topSetores = sortedSetores.slice(0, topN);
+      const outrosCount = sortedSetores.slice(topN).reduce((sum, d) => sum + d.marcas.length, 0);
+      const pieLabels = [...topSetores.map(d => d.setor), 'Outros'];
+      const pieData = [...topSetores.map(d => d.marcas.length), outrosCount];
+      const pieCores = cores.slice(0, topN).concat('#A9A9A9');
+
+      if (pieChart) pieChart.destroy();
+      pieChart = new Chart(document.getElementById('pieChart'), {
+        type: 'pie',
+        data: {
+          labels: pieLabels,
+          datasets: [{
+            data: pieData,
+            backgroundColor: pieCores,
+            borderColor: '#FFFFFF',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Proporção dos Principais Setores',
+              font: { size: 20 }
+            },
+            legend: {
+              position: 'right',
+              labels: { font: { size: 14 } }
+            }
+          }
+        }
+      });
+    }
+
+    function abrirPopup(botao) {
+      const imagemUrl = botao.getAttribute('data-imagem');
+      document.getElementById('popup-imagem').src = imagemUrl;
+      document.getElementById('popup').style.display = 'block';
+    }
+
+    function fecharPopup() {
+      document.getElementById('popup').style.display = 'none';
+    }
+
+    document.getElementById('popup').addEventListener('click', function(event) {
+      if (event.target === this) {
+        fecharPopup();
+      }
+    });
+
+    atualizarTabela();
+    atualizarGraficos();
+  </script>
+</body>
+</html>
